@@ -69,7 +69,7 @@ As an example of usage, you can look at the [pbstyles](https://github.com/prosaz
 }
 ```
 
-#### SCSS:
+#### SCSS
 
 ```scss
 $font-h64-font-size: 64px;
@@ -83,7 +83,7 @@ $font-h64-font-weight: 700;
 }
 ```
 
-#### LESS:
+#### LESS
 
 ```less
 @font-h64-font-size: 64px;
@@ -116,7 +116,7 @@ $font-h64-font-weight: 700;
 }
 ```
 
-#### SCSS:
+#### SCSS
 
 ```scss
 $screen-lg-max: 1440px;
@@ -129,7 +129,7 @@ $screen-lg-min: 921px;
 }
 ```
 
-#### LESS:
+#### LESS
 
 ```less
 @screen-lg-max: 1440px;
