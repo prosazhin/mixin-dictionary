@@ -35,16 +35,18 @@ As an example of usage, you can look at the [pbstyles](https://github.com/prosaz
   "platforms": ["css", "less", "scss"],
   "source": ["tokens/**/*.json"],
   "output": "./styles",
-  "mediaAliases": ["screen", "breakpoint"]
+  "mediaAliases": ["screen", "breakpoint"],
+  "keyframesAliases": ["keyframes"]
 }
 ```
 
-| Property     | Type   | Description                                                                                                                                                          |
-| :----------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| platforms    | Array  | Sets of platform files to be built. By default is "["css", "less", "scss"]".                                                                                         |
-| source       | Array  | An array of file path [globs](https://github.com/isaacs/node-glob) to design token files. Exactly like [Style Dictionary](https://github.com/amzn/style-dictionary). |
-| output       | String | Base path to build the files, must end with a trailing slash. By default is "./styles".                                                                              |
-| mediaAliases | Array  | Aliases for media queries category. By default is "["screen", "breakpoint"]".                                                                                        |
+| Property         | Type   | Description                                                                                                                                                          |
+| :--------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| platforms        | Array  | Sets of platform files to be built. By default is "[\"css\", \"less\", \"scss\"]".                                                                                   |
+| source           | Array  | An array of file path [globs](https://github.com/isaacs/node-glob) to design token files. Exactly like [Style Dictionary](https://github.com/amzn/style-dictionary). |
+| output           | String | Base path to build the files, must end with a trailing slash. By default is "./styles".                                                                              |
+| mediaAliases     | Array  | Aliases for media queries category. By default is "[\"screen\", \"breakpoint\"]".                                                                                    |
+| keyframesAliases | Array  | Aliases for keyframes animations category. By default is "[\"keyframes\"]".                                                                                          |
 
 ### Example of a mixin
 
@@ -94,6 +96,53 @@ $font-h64-font-weight: 700;
   font-size: @font-h64-font-size;
   line-height: @font-h64-line-height;
   font-weight: @font-h64-font-weight;
+}
+```
+
+### Example of a keyframes mixin
+
+```json
+{
+  "keyframes": {
+    "fade": {
+      "from": {
+        "value": "opacity: 0;",
+        "mixin": "fade"
+      },
+      "to": {
+        "value": "opacity: 1;",
+        "mixin": "fade"
+      }
+    }
+  }
+}
+```
+
+#### SCSS
+
+```scss
+$keyframes-fade-from: opacity: 0;
+$keyframes-fade-to: opacity: 1;
+
+@mixin fade {
+  @include keyframes(fade) {
+    from { #{$keyframes-fade-from} }
+    to { #{$keyframes-fade-to} }
+  }
+}
+```
+
+#### LESS
+
+```less
+@keyframes-fade-from: opacity: 0;
+@keyframes-fade-to: opacity: 1;
+
+.fade() {
+  .keyframes(fade, {
+    from { @keyframes-fade-from; }
+    to { @keyframes-fade-to; }
+  });
 }
 ```
 
