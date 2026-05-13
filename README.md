@@ -1,6 +1,6 @@
 # Mixin Dictionary
 
-Mixin Dictionary is a package based on [Style Dictionary](https://github.com/amzn/style-dictionary) that allows creating mixins from design tokens for LESS and SCSS.
+Mixin Dictionary is a package based on [Style Dictionary](https://github.com/amzn/style-dictionary) that allows creating mixins from design tokens for LESS and SCSS, with theme support (light/dark) for CSS, LESS, and SCSS.
 
 ## Installation
 
@@ -22,7 +22,7 @@ $ mixin-dictionary
 
 ## CSS
 
-At the moment, CSS does not yet have the ability to use mixins.
+CSS variables are generated in `:root`. Mixins are not supported for CSS. Theme support works via CSS custom properties — see [Theme support](#theme-support).
 
 ## Example
 
@@ -40,15 +40,120 @@ As an example of usage, you can look at the [pbstyles](https://github.com/prosaz
 }
 ```
 
-| Property         | Type   | Description                                                                                                                                                          |
-| :--------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| platforms        | Array  | Sets of platform files to be built. By default is "[\"css\", \"less\", \"scss\"]".                                                                                   |
-| source           | Array  | An array of file path [globs](https://github.com/isaacs/node-glob) to design token files. Exactly like [Style Dictionary](https://github.com/amzn/style-dictionary). |
-| output           | String | Base path to build the files, must end with a trailing slash. By default is "./styles".                                                                              |
-| mediaAliases     | Array  | Aliases for media queries category. By default is "[\"screen\", \"breakpoint\"]".                                                                                    |
-| keyframesAliases | Array  | Aliases for keyframes animations category. By default is "[\"keyframes\"]".                                                                                          |
+| Property         | Type   | Default                    | Description                                                                                                                                                          |
+| :--------------- | :----- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| platforms        | Array  | `["css", "less", "scss"]`  | Sets of platform files to be built.                                                                                                                                  |
+| source           | Array  | `["tokens/**/*.json"]`     | An array of file path [globs](https://github.com/isaacs/node-glob) to design token files. Exactly like [Style Dictionary](https://github.com/amzn/style-dictionary). |
+| output           | String | `"./styles"`               | Base path to build the files.                                                                                                                                        |
+| mediaAliases     | Array  | `["screen", "breakpoint"]` | Aliases for media queries category.                                                                                                                                  |
+| keyframesAliases | Array  | `["keyframes"]`            | Aliases for keyframes animations category.                                                                                                                           |
+| themes           | Object | `null`                     | Optional. Light and dark theme token files.                                                                                                                          |
 
-### Example of a mixin
+## Theme support
+
+Add an optional `themes` object to your config to enable light/dark theme output. If omitted, behavior is identical to previous versions — full backward compatibility.
+
+### config.json with themes
+
+```json
+{
+  "platforms": ["css", "less", "scss"],
+  "source": ["tokens/*.json"],
+  "themes": {
+    "light": ["tokens/themes/light.json"],
+    "dark": ["tokens/themes/dark.json"]
+  },
+  "output": "./styles",
+  "mediaAliases": ["screen", "breakpoint"],
+  "keyframesAliases": ["keyframes"]
+}
+```
+
+| Property     | Type       | Description                            |
+| :----------- | :--------- | :------------------------------------- |
+| themes.light | `string[]` | File paths to light theme token files. |
+| themes.dark  | `string[]` | File paths to dark theme token files.  |
+
+> **Note:** when using `themes`, make sure `source` does not include the theme files themselves — use a specific glob like `tokens/*.json` instead of `tokens/**/*.json`. Theme files are passed separately via `themes.light` and `themes.dark` to avoid token collisions.
+
+### How it works
+
+The tool runs Style Dictionary twice — once for the light theme, once for the dark theme — and combines the results:
+
+1. **Light build** — `source` + `themes.light` → generates all platform files and mixins
+2. **Dark build** — `source` + `themes.dark` → generates only the dark override blocks
+
+### CSS
+
+All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']`:
+
+```css
+:root {
+  --color-black: #000000;
+  --color-basic-0: #ffffff;
+  /* ... all tokens ... */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-basic-0: #0f172a;
+    /* ... semantic overrides only ... */
+  }
+}
+
+[data-theme='dark'] {
+  --color-basic-0: #0f172a;
+  /* ... semantic overrides only ... */
+}
+```
+
+### LESS
+
+```less
+:root {
+  --color-basic-0: #ffffff;
+  /* ... semantic tokens only ... */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-basic-0: #0f172a;
+  }
+}
+
+[data-theme='dark'] {
+  --color-basic-0: #0f172a;
+}
+
+/* Semantic tokens reference CSS custom properties for runtime switching */
+@color-basic-0: var(--color-basic-0);
+
+/* Non-semantic tokens keep actual values */
+@color-black: #000000;
+```
+
+### SCSS
+
+```scss
+:root {
+  --color-basic-0: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-basic-0: #0f172a;
+  }
+}
+
+[data-theme='dark'] {
+  --color-basic-0: #0f172a;
+}
+
+$color-basic-0: var(--color-basic-0);
+$color-black: #000000;
+```
+
+## Example of a mixin
 
 ```json
 {
@@ -99,7 +204,7 @@ $font-h64-font-weight: 700;
 }
 ```
 
-### Example of a keyframes mixin
+## Example of a keyframes mixin
 
 ```json
 {
@@ -146,7 +251,7 @@ $keyframes-fade-to: opacity: 1;
 }
 ```
 
-### Example of a media query mixin
+## Example of a media query mixin
 
 ```json
 {
