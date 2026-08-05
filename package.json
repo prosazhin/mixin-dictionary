@@ -1,6 +1,6 @@
 {
   "name": "mixin-dictionary",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Creating mixins from design tokens for LESS and SCSS.",
   "license": "MIT",
   "author": "Evgenii Sazhin <prosazhin@gmail.com> (https://prosazhin.ru)",
@@ -64,10 +64,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "overrides": {
-    "brace-expansion": "^5.0.6",
+    "brace-expansion": "^5.0.9",
     "qs": "^6.15.2",
     "flatted": "^3.4.2",
-    "fast-uri": "~3.1.1"
+    "fast-uri": "~3.1.5",
+    "js-yaml": "^4.3.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
@@ -84,6 +85,6 @@
   },
   "dependencies": {
     "fs-extra": "^11.3.4",
-    "style-dictionary": "^5.4.0"
+    "style-dictionary": "^5.5.0"
   }
 }
