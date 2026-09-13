@@ -83,9 +83,16 @@ The tool runs Style Dictionary twice — once for the light theme, once for the 
 1. **Light build** — `source` + `themes.light` → generates all platform files and mixins
 2. **Dark build** — `source` + `themes.dark` → generates only the dark override blocks
 
+### Theme switching
+
+- **No attribute** — follows the OS preference via `@media (prefers-color-scheme: dark)`
+- **`<html data-theme="dark">`** — forces dark regardless of the OS preference
+- **`<html data-theme="light">`** — forces light regardless of the OS preference
+- **`<div data-theme="light">`** (or `dark`) — switches the theme for a single container inside a page of the opposite theme
+
 ### CSS
 
-All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']`:
+All tokens in `:root`, semantic overrides via `@media`, `[data-theme='dark']` and `[data-theme='light']`:
 
 ```css
 :root {
@@ -95,7 +102,7 @@ All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-basic-0: #0f172a;
     /* ... semantic overrides only ... */
   }
@@ -103,6 +110,11 @@ All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']
 
 [data-theme='dark'] {
   --color-basic-0: #0f172a;
+  /* ... semantic overrides only ... */
+}
+
+[data-theme='light'] {
+  --color-basic-0: #ffffff;
   /* ... semantic overrides only ... */
 }
 ```
@@ -116,13 +128,17 @@ All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-basic-0: #0f172a;
   }
 }
 
 [data-theme='dark'] {
   --color-basic-0: #0f172a;
+}
+
+[data-theme='light'] {
+  --color-basic-0: #ffffff;
 }
 
 /* Semantic tokens reference CSS custom properties for runtime switching */
@@ -140,13 +156,17 @@ All tokens in `:root`, dark overrides via both `@media` and `[data-theme='dark']
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-basic-0: #0f172a;
   }
 }
 
 [data-theme='dark'] {
   --color-basic-0: #0f172a;
+}
+
+[data-theme='light'] {
+  --color-basic-0: #ffffff;
 }
 
 $color-basic-0: var(--color-basic-0);

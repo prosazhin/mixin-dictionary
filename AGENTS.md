@@ -42,8 +42,8 @@ lib/
 6. `getSemanticPaths(themes.dark)` → Set путей тёмных токенов из JSON
 7. **Прогон 2 (dark)**: SD с `source + themes.dark` → только `cache-dark/`
 8. `buildTheme()`:
-   - **CSS**: дописывает `@media (prefers-color-scheme: dark)` и `[data-theme='dark']` в конец `index.css`
-   - **LESS/SCSS**: перечитывает файл, заменяет семантические переменные на `var()`, добавляет `:root {}` с семантическими light-значениями + dark-блоки в начало файла; миксины в конце остаются нетронутыми
+   - **CSS**: дописывает в конец `index.css` три блока: `@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) }`, `[data-theme='dark']` и `[data-theme='light']` (семантические light-значения для светлых контейнеров внутри тёмной страницы)
+   - **LESS/SCSS**: перечитывает файл, заменяет семантические переменные на `var()`, добавляет `:root {}` с семантическими light-значениями + те же три тематических блока в начало файла; миксины в конце остаются нетронутыми
 9. Удаляет `cache-dark/`
 
 ### Ключевые решения по дизайну
@@ -62,7 +62,7 @@ lib/
   "source": ["tokens/*.json"],
   "themes": {
     "light": ["tokens/themes/light.json"],
-    "dark":  ["tokens/themes/dark.json"]
+    "dark": ["tokens/themes/dark.json"]
   },
   "output": "./styles",
   "mediaAliases": ["screen", "breakpoint"],
@@ -71,7 +71,7 @@ lib/
 ```
 
 | Параметр         | Тип      | По умолчанию              | Обязателен |
-|:-----------------|:---------|:--------------------------|:-----------|
+| :--------------- | :------- | :------------------------ | :--------- |
 | platforms        | Array    | `["css","less","scss"]`   | нет        |
 | source           | Array    | `["tokens/**/*.json"]`    | нет        |
 | output           | String   | `"./styles"`              | нет        |
