@@ -1,5 +1,7 @@
 # Mixin Dictionary
 
+[Documentation](https://prosazhin.dev/docs/mixin-dictionary)
+
 Mixin Dictionary is a package based on [Style Dictionary](https://github.com/amzn/style-dictionary) that allows creating mixins from design tokens for LESS and SCSS, with theme support (light/dark) for CSS, LESS, and SCSS.
 
 ## Installation
