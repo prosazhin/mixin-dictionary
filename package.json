@@ -3,7 +3,7 @@
   "version": "1.4.1",
   "description": "Creating mixins from design tokens for LESS and SCSS.",
   "license": "MIT",
-  "author": "Evgenii Sazhin <prosazhin@gmail.com> (https://prosazhin.ru)",
+  "author": "Evgenii Sazhin <prosazhin@gmail.com> (https://prosazhin.dev)",
   "keywords": [
     "mixin dictionary",
     "mixin",
