@@ -3,4 +3,4 @@ package-lock.json
 
 # Эталоны snapshot-тестов: байт-в-байт вывод генератора
 test/fixtures
-types
+/types
