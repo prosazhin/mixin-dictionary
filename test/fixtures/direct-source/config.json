@@ -1,0 +1,5 @@
+{
+  "platforms": ["css"],
+  "source": ["tokens/base.json"],
+  "output": "./expected"
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unpkg.com/mixin-dictionary/schema/config.schema.json",
+  "title": "mixin-dictionary config",
+  "description": "Config for mixin-dictionary: design tokens → CSS variables, LESS/SCSS variables and mixins. https://prosazhin.dev/docs/mixin-dictionary",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "platforms": {
+      "description": "Platforms to build. Default is [\"css\", \"less\", \"scss\"].",
+      "type": "array",
+      "items": { "enum": ["css", "less", "scss"] },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": ["css", "less", "scss"]
+    },
+    "source": {
+      "description": "Globs or file paths of design token files (legacy \"value\" or DTCG \"$value\"). Default is [\"tokens/**/*.json\"].",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "default": ["tokens/**/*.json"]
+    },
+    "output": {
+      "description": "Folder for the result: <output>/<platform>/index.<platform>. Default is \"./styles\".",
+      "type": "string",
+      "minLength": 1,
+      "default": "./styles"
+    },
+    "mediaAliases": {
+      "description": "Token categories with breakpoints: <category>.<name>.{min,max} → media query mixin <name>. Default is [\"screen\", \"breakpoint\"].",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "default": ["screen", "breakpoint"]
+    },
+    "keyframesAliases": {
+      "description": "Token categories with keyframes: <category>.<name>.<frame>.<property> → keyframes <name>. Default is [\"keyframes\"].",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "default": ["keyframes"]
+    },
+    "themes": {
+      "description": "Theme token files. Each key except \"default\" is a theme name: \"light\", \"dark\", \"high-contrast\", …",
+      "type": ["object", "null"],
+      "properties": {
+        "default": {
+          "description": "Theme whose values go to :root. Default is \"light\" (base tokens if there are no light files).",
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "description": "Globs or file paths of the theme token files.",
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "minItems": 1
+      },
+      "examples": [{ "light": ["tokens/themes/light.json"], "dark": ["tokens/themes/dark.json"] }]
+    }
+  },
+  "additionalProperties": false
+}

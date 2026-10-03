@@ -1,0 +1,10 @@
+{
+  "platforms": ["css", "less", "scss"],
+  "source": ["tokens/*.json"],
+  "themes": {
+    "dark": ["tokens/themes/dark.json"]
+  },
+  "output": "./expected",
+  "mediaAliases": ["screen"],
+  "keyframesAliases": ["keyframes"]
+}

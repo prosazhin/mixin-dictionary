@@ -1,0 +1,38 @@
+:root {
+  --color-text-primary: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-text-primary: #ffffff;
+  }
+}
+
+[data-theme='dark'] {
+  --color-text-primary: #ffffff;
+}
+
+[data-theme='light'] {
+  --color-text-primary: #0f172a;
+}
+
+
+// Do not edit directly, this file was auto-generated.
+
+$screen-tablet-up-min: 768px;
+$color-brand-blue: #2563eb;
+$color-text-primary: var(--color-text-primary);
+
+@mixin keyframes($name) {
+  @keyframes #{$name} {
+    @content;
+  }
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin tabletUp { @media all and (min-width: $screen-tablet-up-min) { @content; } }

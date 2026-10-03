@@ -1,0 +1,10 @@
+{
+  "screen": {
+    "tabletUp": {
+      "min": { "value": "768px", "mixin": "tabletUp" }
+    }
+  },
+  "color": {
+    "brandBlue": { "value": "#2563eb" }
+  }
+}

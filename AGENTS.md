@@ -2,7 +2,7 @@
 
 ## Обзор проекта
 
-**mixin-dictionary** — CLI-инструмент и npm-пакет на базе [Style Dictionary](https://amzn.github.io/style-dictionary/), который генерирует CSS/LESS/SCSS переменные и миксины из design tokens с поддержкой светлой/тёмной темы. Читает JSON-файлы с токенами, создаёт переменные через Style Dictionary, генерирует миксины (включая media query и keyframe) для LESS и SCSS, а при наличии `themes` в конфиге — дополнительно обрабатывает тёмную тему.
+**mixin-dictionary** — CLI-инструмент и npm-пакет на базе [Style Dictionary](https://github.com/style-dictionary/style-dictionary), который генерирует CSS/LESS/SCSS переменные и миксины из design tokens с поддержкой тем. Вход — DTCG 2025.10 (`$value`, `$type`) или старый формат (`value` + `mixin`). Переменные создаёт Style Dictionary (в памяти, без файлов кэша), миксины (типографика, media query, keyframes) — пакет, темы (`light`, `dark`, любые другие) — блоки `:root` / `prefers-color-scheme` / `[data-theme]`.
 
 ## Архитектура
 
@@ -10,54 +10,51 @@
 
 ```
 bin/
-  mixin-dictionary.js       # Точка входа CLI (на базе commander)
+  mixin-dictionary.js       # CLI (commander): -c, -w; ошибки DictionaryError — одной строкой, exit 1
 lib/
-  index.js                  # Оркестрация сборки: два прогона SD (light + dark), buildMixins, buildTheme
-  build-mixins.js           # Генерация миксинов: чтение кэша, группировка по имени миксина, запись в файлы
-  build-theme.js            # Генерация тёмной темы: CSS append + перезапись LESS/SCSS файлов
-  const.js                  # Константы, дефолтные значения конфига, шаблоны keyframe-миксинов
+  index.js                  # build(config): чтение файлов → generate() → запись <output>/<platform>/index.<platform>
+  generate.js               # generate({ tokens, themes, platforms, mediaAliases, keyframesAliases }) без fs
+  build-mixins.js           # группы токенов → текст миксинов по платформам
+  build-theme.js            # блоки тем: CSS — в конец, LESS/SCSS — var() для семантических + :root и блоки в начало
+  const.js                  # константы, дефолты конфига, шаблоны keyframe-миксинов (с -webkit- и -moz-)
+  types.js                  # JSDoc-типы публичного API
+  tokens/                   # общий с tailwind-dictionary код (без fs): walk, validate, normalize-value,
+                            # read-tokens, groups, themes, theme-blocks, resolve, errors
   utils/
-    get-config.js           # Парсинг и валидация конфига, подстановка дефолтных значений
-    get-semantic-paths.js   # Сбор Set путей токенов из JSON-файлов темы (до запуска SD)
-    helpers.js              # Чистые функции: обход токенов, группировка миксинов, генерация кода
-    logger.js               # Цветной вывод в консоль через chalk
+    get-config.js           # чтение и проверка config.json (правила = schema/config.schema.json)
+    read-token-files.js     # глобы → файлы → дерево + карта «путь токена → файл» (общий с tailwind-dictionary)
+    watch.js                # --watch (общий с tailwind-dictionary)
+    helpers.js              # createProp / createMixin (включая CSS-«миксины»)
+    logger.js               # chalk
+schema/config.schema.json   # JSON Schema конфига
+test/                       # *.test.js, fixtures/, types/
 ```
 
 ### Поток данных
 
-**Без `themes`** (обратная совместимость):
-
-1. CLI → `build(options)` из `lib/index.js`
-2. `getConfig()` читает и валидирует конфиг
-3. Style Dictionary: один прогон → `cache/` (JS) + платформенные файлы (CSS/LESS/SCSS)
-4. `buildMixins()` → импортирует кэш, генерирует миксины, дописывает в файлы, удаляет `cache/`
-
-**С `themes`**:
-
-1. CLI → `build(options)`
-2. `getConfig()` читает и валидирует конфиг, включая `themes`
-3. **Прогон 1 (light)**: SD с `source + themes.light` → `cache/` + платформенные файлы
-4. Читаем `lightTokens` из `cache/` **до** удаления
-5. `buildMixins()` → миксины + удаляет `cache/`
-6. `getSemanticPaths(themes.dark)` → Set путей тёмных токенов из JSON
-7. **Прогон 2 (dark)**: SD с `source + themes.dark` → только `cache-dark/`
-8. `buildTheme()`:
-   - **CSS**: дописывает в конец `index.css` три блока: `@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) }`, `[data-theme='dark']` и `[data-theme='light']` (семантические light-значения для светлых контейнеров внутри тёмной страницы)
-   - **LESS/SCSS**: перечитывает файл, заменяет семантические переменные на `var()`, добавляет `:root {}` с семантическими light-значениями + те же три тематических блока в начало файла; миксины в конце остаются нетронутыми
-9. Удаляет `cache-dark/`
+1. CLI → `build({ config })`; программно — `build(config)` или `generate(...)`
+2. `getConfig()` читает и валидирует конфиг; `read-token-files` раскрывает глобы `source` и `themes.*` (ошибка `No token files matched`, если не найдено ни одного файла)
+3. `generate()`:
+   - `resolveThemes` (`lib/tokens/resolve.js`): проверка дерева (`validate.js`: формат, битые ссылки, typography без fontSize), Style Dictionary в памяти для темы по умолчанию (`source` + её файлы) и для каждой другой темы → плоский список токенов
+   - переменные: форматы Style Dictionary `<platform>/variables` через `formatPlatform` в памяти. Старый формат — `transformGroup` платформы, как раньше; DTCG — трансформ `mixin-dictionary/dtcg-value` (`normalize-value.js`), составная типографика разворачивается в `<path>-font-size`, … на том же месте дерева
+   - миксины (`groups.js`): поле `mixin` → `$extensions["dev.prosazhin.mixin"]` → составная `typography` → `mediaAliases` (`<cat>.<name>.{min,max}`) → `keyframesAliases` (`<cat>.<name>.<frame>.<prop>`)
+   - темы (`build-theme.js`): CSS — в конец `@media (prefers-color-scheme)` для `light`/`dark` и `[data-theme='<name>']` для каждой темы; LESS/SCSS — семантические переменные → `var(--…)`, в начало `:root` (тема по умолчанию) и те же блоки
+4. `build()` записывает файлы (папки создаются рекурсивно)
 
 ### Ключевые решения по дизайну
 
 - **Только семантические токены → `var()`** в LESS/SCSS. Токены палитры, размеров, брейкпоинтов остаются с реальными значениями — `var()` не работает внутри `@media` запросов, поэтому брейкпоинт-миксины должны использовать конкретные значения.
 - **`:root {}` в LESS/SCSS** содержит только семантические токены (те что меняются между темами), не всю палитру.
-- **Порядок прогонов SD строго последовательный**: SD может конфликтовать при параллельном запуске.
-- **`cache-dark/` удаляется в `finally`**: гарантированная очистка даже при ошибке.
+- **Семантические пути** — объединение путей всех тем, кроме темы по умолчанию (`themes.default`, по умолчанию `light`).
+- **Без кэша на диске**: токены берутся из Style Dictionary в памяти, параллельные сборки не мешают друг другу.
 - **`source` не должен включать файлы тем**: при использовании `themes` нужно менять глоб с `tokens/**/*.json` на `tokens/*.json`.
+- **Не удалять существующие возможности и вывод** (CSS-«миксины», `-webkit-`/`-moz-` keyframes и т. п.) — только улучшать.
 
 ## Конфигурация
 
 ```json
 {
+  "$schema": "./node_modules/mixin-dictionary/schema/config.schema.json",
   "platforms": ["css", "less", "scss"],
   "source": ["tokens/*.json"],
   "themes": {
@@ -78,17 +75,18 @@ lib/
 | mediaAliases     | Array    | `["screen","breakpoint"]` | нет        |
 | keyframesAliases | Array    | `["keyframes"]`           | нет        |
 | themes           | Object   | `null`                    | нет        |
-| themes.light     | string[] | —                         | нет        |
-| themes.dark      | string[] | —                         | нет        |
+| themes.<name>    | string[] | —                         | нет        |
+| themes.default   | string   | `light`                   | нет        |
 
 ## Технологический стек
 
-- **Среда выполнения**: Node.js >= 20.22.0
-- **Язык**: JavaScript (ES Modules)
+- **Среда выполнения**: Node.js >= 22.0.0
+- **Язык**: JavaScript (ES Modules), типы через JSDoc → `tsc` в `types/`
 - **Основная зависимость**: `style-dictionary` ^5.x
 - **CLI**: `commander`
-- **Файловая система**: `fs-extra`
 - **Консольный вывод**: `chalk`
+- **JSON5-файлы токенов**: `json5`
+- **Тесты**: `node --test` (snapshot по `test/fixtures/*/expected`)
 
 ## Конвенции кода
 
@@ -106,7 +104,7 @@ lib/
 ### Паттерны модулей
 
 - Default-экспорты для основных функций (`export default async function build`)
-- Именованные экспорты для утилит (`export { getTokens, getMixins, createProp, createMixin }`)
+- Именованные экспорты для утилит (`export { createProp, createMixin }`)
 - Во всех импортах явно указывается расширение `.js`
 
 ### Стиль кода
@@ -133,20 +131,21 @@ lib/
 
 ### Процесс релиза
 
-1. Обновление версии в `package.json`
-2. Push в `main` → GitHub Actions создаёт git-тег
-3. Push тега → GitHub Actions публикует в npm и создаёт GitHub Release
+1. Обновление версии в `package.json` и `CHANGELOG.md`
+2. Push в `main` → `release.yml` сверяет версию с npm, гоняет lint и тесты, публикует пакет (`prepublishOnly` собирает `types/`), создаёт тег и GitHub Release
 
 ## npm-скрипты
 
+- `npm test` — snapshot-тесты, тесты ошибок и общего модуля
+- `npm run test:types` — сборка `.d.ts` и проверка типов на `test/types/usage.ts`
 - `npm run lint` — запуск ESLint
 - `npm run format` — запуск Prettier на всех `.js` и `.json` файлах
 - `npm run prepare` — настройка git-хуков
 
 ## Важные ограничения
 
-- Тесты отсутствуют — при изменении основной логики нужна осторожность
-- `cache/` и `cache-dark/` — временные директории, автоматически удаляются после сборки
+- Изменение вывода — только осознанно: обновить `test/fixtures/*/expected` и описать отличие
+- `lib/tokens/*`, `lib/utils/read-token-files.js`, `lib/utils/watch.js`, `test/tokens.test.js` одинаковые с tailwind-dictionary — менять в обоих
+- `lib/generate.js` и `lib/tokens/*` без `fs`, `path`, `process`, `chalk` — работают в браузере
 - CSS-платформа генерирует только переменные (без миксинов); media queries и keyframes — только для LESS/SCSS
-- TypeScript есть в devDependencies, но не используется
-- В опубликованный пакет входят только `bin/`, `lib/` и `README.md`
+- В опубликованный пакет входят `bin/`, `lib/`, `schema/`, `types/`, `README.md`, `CHANGELOG.md`

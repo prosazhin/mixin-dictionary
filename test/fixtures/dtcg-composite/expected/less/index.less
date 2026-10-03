@@ -1,0 +1,68 @@
+:root {
+  --color-white: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-white: #000000;
+  }
+}
+
+[data-theme='dark'] {
+  --color-white: #000000;
+}
+
+[data-theme='light'] {
+  --color-white: #ffffff;
+}
+
+
+// Do not edit directly, this file was auto-generated.
+
+@size-16: 16px;
+@size-48: 3rem;
+@color-white: var(--color-white);
+@color-ink: rgba(15, 23, 42, 0.5);
+@color-brand: oklch(0.62 0.19 259.8);
+@color-glass: color(display-p3 0 0.5 1 / 0.25);
+@color-none: transparent;
+@color-string: #123456;
+@font-family-sans: 'Inter Variable', system-ui, sans-serif;
+@font-family-mono: JetBrains Mono, monospace;
+@font-weight-bold: 700;
+@font-size-16: 16px;
+@font-h48-font-family: 'Inter Variable', system-ui, sans-serif;
+@font-h48-font-size: 3rem;
+@font-h48-font-weight: 700;
+@font-h48-letter-spacing: -0.5px;
+@font-h48-line-height: 1.2;
+@font-body-font-size: 16px;
+@font-body-line-height: 1.5;
+@font-body-font-weight: 400;
+@shadow-card: 0px 1px 2px 0px rgba(15, 23, 42, 0.5), inset 0px 4px 8px -2px rgba(0, 0, 0, 0.1);
+@shadow-legacy: 0 1px 2px rgba(0, 0, 0, 0.1);
+@screen-sm: 640px;
+@screen-lg-min: 1024px;
+@screen-lg-max: 1439px;
+@duration-fast: 150ms;
+@ease-out: cubic-bezier(0.2, 0, 0, 1);
+@animation-fade: fade 150ms ease-out;
+@keyframes-fade-from-opacity: 0;
+@keyframes-fade-to-opacity: 1;
+
+.keyframes(@name, @content) {
+  @keyframes @name {
+    @content();
+  }
+  @-webkit-keyframes @name {
+    @content();
+  }
+  @-moz-keyframes @name {
+    @content();
+  }
+}
+
+.h48() { font-family: @font-h48-font-family; font-size: @font-h48-font-size; font-weight: @font-h48-font-weight; letter-spacing: @font-h48-letter-spacing; line-height: @font-h48-line-height; }
+.body-lg() { font-size: @font-body-font-size; line-height: @font-body-line-height; font-weight: @font-body-font-weight; }
+.lg(@rules) { @media all and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) { @rules(); } }
+.keyframes(fade, { from { opacity: @keyframes-fade-from-opacity; } to { opacity: @keyframes-fade-to-opacity; } });

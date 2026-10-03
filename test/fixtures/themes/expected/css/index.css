@@ -1,0 +1,28 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-black: #0f0f0f;
+  --color-white: #ffffff;
+  --color-background: #ffffff;
+  --color-foreground: #0f0f0f;
+  --rounded-md: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-background: #0f0f0f;
+    --color-foreground: #ffffff;
+  }
+}
+
+[data-theme='dark'] {
+  --color-background: #0f0f0f;
+  --color-foreground: #ffffff;
+}
+
+[data-theme='light'] {
+  --color-background: #ffffff;
+  --color-foreground: #0f0f0f;
+}

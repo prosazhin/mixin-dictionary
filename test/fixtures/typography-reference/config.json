@@ -1,0 +1,7 @@
+{
+  "platforms": ["scss", "less"],
+  "source": ["tokens/*.json"],
+  "output": "./expected",
+  "mediaAliases": ["screen"],
+  "keyframesAliases": ["keyframes"]
+}

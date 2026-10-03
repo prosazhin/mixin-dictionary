@@ -1,0 +1,10 @@
+{
+  "font": {
+    "size": { "$type": "dimension", "32": { "$value": { "value": 32, "unit": "px" } } },
+    "h1": {
+      "$type": "typography",
+      "$value": { "fontSize": "{font.size.32}", "lineHeight": 1.2, "fontWeight": 700 }
+    },
+    "pageTitle": { "$type": "typography", "$value": "{font.h1}" }
+  }
+}

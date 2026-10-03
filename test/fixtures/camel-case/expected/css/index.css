@@ -1,0 +1,23 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --screen-tablet-up-min: 768px;
+  --color-brand-blue: #2563eb;
+  --color-text-primary: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-text-primary: #ffffff;
+  }
+}
+
+[data-theme='dark'] {
+  --color-text-primary: #ffffff;
+}
+
+[data-theme='light'] {
+  --color-text-primary: #0f172a;
+}
