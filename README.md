@@ -85,27 +85,29 @@ As an example of usage, you can look at the [pbstyles](https://github.com/prosaz
 
 `$schema` enables autocompletion and validation of the config in VS Code and other editors.
 
-| Property         | Type   | Default                    | Description                                                                                                                       |
-| :--------------- | :----- | :------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
-| platforms        | Array  | `["css", "less", "scss"]`  | Sets of platform files to be built.                                                                                               |
-| source           | Array  | `["tokens/**/*.json"]`     | Globs or file paths of design token files, e.g. `["tokens/*.json"]` or `["tokens/base.json"]`. JSON, JSON5 and JS are supported. |
-| output           | String | `"./styles"`               | Base path to build the files. The folder is created if it does not exist.                                                         |
-| mediaAliases     | Array  | `["screen", "breakpoint"]` | Categories of breakpoint tokens.                                                                                                  |
-| keyframesAliases | Array  | `["keyframes"]`            | Categories of keyframes tokens.                                                                                                   |
-| themes           | Object | `null`                     | Optional. Theme token files (`light`, `dark`, any other name) and the `default` theme. See [Theme support](#theme-support).       |
+| Property         | Type            | Default                            | Description                                                                                                                                                                     |
+| :--------------- | :-------------- | :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| platforms        | Array           | `["css", "less", "scss"]`          | Sets of platform files to be built.                                                                                                                                             |
+| source           | Array           | `["tokens/**/*.json"]`             | Globs or file paths of design token files, e.g. `["tokens/*.json"]` or `["tokens/base.json"]`. JSON, JSON5 and JS are supported.                                                |
+| output           | String          | `"./styles"`                       | Base path to build the files. The folder is created if it does not exist.                                                                                                       |
+| mediaAliases     | Array           | `["screen", "breakpoint"]`         | Categories of breakpoint tokens.                                                                                                                                                |
+| keyframesAliases | Array           | `["keyframes"]`                    | Categories of keyframes tokens.                                                                                                                                                 |
+| numberUnit       | String \| false | `"px"`                             | Unit for bare numbers (DTCG `number`, e.g. Figma FLOAT variables) in dimension categories. `"rem"` divides by 16, `false` outputs numbers as is. Zero stays `0`.                |
+| dimensionAliases | Array           | `["spacing", "radius", "size", …]` | Categories (first path segment) whose bare numbers are dimensions. `mediaAliases` categories are always included. `line-height`, `font-weight`, `opacity` are never dimensions. |
+| themes           | Object          | `null`                             | Optional. Theme token files (`light`, `dark`, any other name) and the `default` theme. See [Theme support](#theme-support).                                                     |
 
 ## DTCG
 
 Token files in the [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/format/) format (`$value`, `$type`) are detected automatically. One build uses one format: mixing `value` and `$value` in the same set of files is an error.
 
-| DTCG value                                                         | Output                                                                                  |
-| :----------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| `dimension` `{ "value": 16, "unit": "px" }`                        | `16px`                                                                                  |
+| DTCG value                                                         | Output                                                                                 |
+| :----------------------------------------------------------------- | :------------------------------------------------------------------------------------- |
+| `dimension` `{ "value": 16, "unit": "px" }`                        | `16px`                                                                                 |
 | `color` `{ "colorSpace": "srgb", "components": […], "hex": "#…" }` | `#…`, with `alpha` — `rgba(…)`, other color spaces — `oklch(…)`, `color(display-p3 …)` |
-| `fontFamily` `["Inter", "sans-serif"]`                             | `'Inter', sans-serif`                                                                   |
-| `shadow` (object or array of layers)                               | `0px 1px 2px 0px #000000, inset …`                                                      |
-| `duration`, `cubicBezier`, `border`, `transition`                  | `150ms`, `cubic-bezier(…)`, `1px solid #…`, …                                           |
-| string values                                                      | as is                                                                                   |
+| `fontFamily` `["Inter", "sans-serif"]`                             | `'Inter', sans-serif`                                                                  |
+| `shadow` (object or array of layers)                               | `0px 1px 2px 0px #000000, inset …`                                                     |
+| `duration`, `cubicBezier`, `border`, `transition`                  | `150ms`, `cubic-bezier(…)`, `1px solid #…`, …                                          |
+| string values                                                      | as is                                                                                  |
 
 `$type` is inherited from the parent group. A reference `{group.token}` must point to an existing token, otherwise the build stops with the token path and the file name.
 
@@ -174,9 +176,24 @@ $keyframes-show-to-opacity: 1;
   }
 }
 
-@mixin h64 { font-size: $font-h64-font-size; line-height: $font-h64-line-height; font-weight: $font-h64-font-weight; }
-@mixin lg { @media all and (min-width: $screen-lg-min) and (max-width: $screen-lg-max) { @content; } }
-@include keyframes(show) { from { opacity: $keyframes-show-from-opacity; } to { opacity: $keyframes-show-to-opacity; } };
+@mixin h64 {
+  font-size: $font-h64-font-size;
+  line-height: $font-h64-line-height;
+  font-weight: $font-h64-font-weight;
+}
+@mixin lg {
+  @media all and (min-width: $screen-lg-min) and (max-width: $screen-lg-max) {
+    @content;
+  }
+}
+@include keyframes(show) {
+  from {
+    opacity: $keyframes-show-from-opacity;
+  }
+  to {
+    opacity: $keyframes-show-to-opacity;
+  }
+}
 ```
 
 #### LESS
@@ -205,8 +222,16 @@ $keyframes-show-to-opacity: 1;
   }
 }
 
-.h64() { font-size: @font-h64-font-size; line-height: @font-h64-line-height; font-weight: @font-h64-font-weight; }
-.lg(@rules) { @media all and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) { @rules(); } }
+.h64() {
+  font-size: @font-h64-font-size;
+  line-height: @font-h64-line-height;
+  font-weight: @font-h64-font-weight;
+}
+.lg(@rules) {
+  @media all and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) {
+    @rules();
+  }
+}
 .keyframes(show, { from { opacity: @keyframes-show-from-opacity; } to { opacity: @keyframes-show-to-opacity; } });
 ```
 
@@ -230,9 +255,9 @@ Add an optional `themes` object to your config to enable theme output. If omitte
 }
 ```
 
-| Property       | Type       | Description                                                                                                                   |
-| :------------- | :--------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| themes.<name>  | `string[]` | Token files of a theme: `light`, `dark` or any other name (`high-contrast`, `brand`, …).                                      |
+| Property       | Type       | Description                                                                                                               |
+| :------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------ |
+| themes.<name>  | `string[]` | Token files of a theme: `light`, `dark` or any other name (`high-contrast`, `brand`, …).                                  |
 | themes.default | `string`   | Theme whose values go to `:root`. Default is `light`. Without `light` files, `light` means the base tokens from `source`. |
 
 > **Note:** when using `themes`, make sure `source` does not include the theme files themselves — use a specific glob like `tokens/*.json` instead of `tokens/**/*.json`. Theme files are passed separately via `themes` to avoid token collisions.
@@ -397,7 +422,11 @@ $font-h64-font-size: 64px;
 $font-h64-line-height: 1.25;
 $font-h64-font-weight: 700;
 
-@mixin h64 { font-size: $font-h64-font-size; line-height: $font-h64-line-height; font-weight: $font-h64-font-weight; }
+@mixin h64 {
+  font-size: $font-h64-font-size;
+  line-height: $font-h64-line-height;
+  font-weight: $font-h64-font-weight;
+}
 ```
 
 #### LESS
@@ -407,7 +436,11 @@ $font-h64-font-weight: 700;
 @font-h64-line-height: 1.25;
 @font-h64-font-weight: 700;
 
-.h64() { font-size: @font-h64-font-size; line-height: @font-h64-line-height; font-weight: @font-h64-font-weight; }
+.h64() {
+  font-size: @font-h64-font-size;
+  line-height: @font-h64-line-height;
+  font-weight: @font-h64-font-weight;
+}
 ```
 
 ### Example of a keyframes mixin
@@ -433,7 +466,14 @@ $font-h64-font-weight: 700;
 $keyframes-fade-from-opacity: 0;
 $keyframes-fade-to-opacity: 1;
 
-@include keyframes(fade) { from { opacity: $keyframes-fade-from-opacity; } to { opacity: $keyframes-fade-to-opacity; } };
+@include keyframes(fade) {
+  from {
+    opacity: $keyframes-fade-from-opacity;
+  }
+  to {
+    opacity: $keyframes-fade-to-opacity;
+  }
+}
 ```
 
 #### LESS
@@ -472,7 +512,11 @@ The `keyframes` helper mixin (with `@-webkit-keyframes` and `@-moz-keyframes`) i
 $screen-lg-max: 1440px;
 $screen-lg-min: 921px;
 
-@mixin lg { @media all and (max-width: $screen-lg-max) and (min-width: $screen-lg-min) { @content; } }
+@mixin lg {
+  @media all and (max-width: $screen-lg-max) and (min-width: $screen-lg-min) {
+    @content;
+  }
+}
 ```
 
 #### LESS
@@ -481,7 +525,11 @@ $screen-lg-min: 921px;
 @screen-lg-max: 1440px;
 @screen-lg-min: 921px;
 
-.lg(@rules) { @media all and (max-width: @screen-lg-max) and (min-width: @screen-lg-min) { @rules(); } }
+.lg(@rules) {
+  @media all and (max-width: @screen-lg-max) and (min-width: @screen-lg-min) {
+    @rules();
+  }
+}
 ```
 
 ## Changelog

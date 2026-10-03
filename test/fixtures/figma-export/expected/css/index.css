@@ -1,0 +1,34 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-blue-400: #2563eb;
+  --color-primary: #2563eb;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-none: 0;
+  --radius-button: 4px;
+  --spacing-2: 8px;
+  --screen-md-min: 768px;
+  --font-sans: Inter;
+  --font-weight-bold: 700;
+  --opacity-half: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary: #2563eb;
+    --radius-button: 4px;
+  }
+}
+
+[data-theme='dark'] {
+  --color-primary: #2563eb;
+  --radius-button: 4px;
+}
+
+[data-theme='light'] {
+  --color-primary: #2563eb;
+  --radius-button: 4px;
+}

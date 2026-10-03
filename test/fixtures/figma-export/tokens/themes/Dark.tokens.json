@@ -1,0 +1,1 @@
+{ "color": { "primary": { "$type": "color", "$value": "{color.blue.400}" } }, "radius": { "button": { "$type": "number", "$value": "{radius.4}" } } }

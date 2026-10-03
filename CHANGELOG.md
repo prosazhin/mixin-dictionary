@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.0
+
+### Added
+
+- `numberUnit` (`"px"` | `"rem"` | `false`) and `dimensionAliases`: bare DTCG numbers (`$type: "number"`, as Figma exports FLOAT variables)
+  in dimension categories get a unit (`--radius-4: 4` → `4px`). Compatible with the native Figma variables export.
+
+### Changed
+
+- DTCG tokens only: a bare number in a dimension category (`spacing`, `radius`, `size`, breakpoints, …) now gets `px` instead of
+  being output as is, which was not valid CSS. The legacy `value` format and other numbers (`line-height`, `font-weight`, `opacity`) are unchanged;
+  `numberUnit: false` restores the old behavior.
+
 ## 1.6.0
 
 ### Added

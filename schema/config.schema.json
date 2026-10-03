@@ -41,6 +41,34 @@
       "minItems": 1,
       "default": ["keyframes"]
     },
+    "numberUnit": {
+      "description": "Unit for bare numbers (DTCG \"number\", e.g. Figma FLOAT variables) in dimension categories: \"px\" (default), \"rem\" (value / 16) or false (output numbers as is). Zero stays 0.",
+      "enum": ["px", "rem", false],
+      "default": "px"
+    },
+    "dimensionAliases": {
+      "description": "Token categories (first path segment) whose bare numbers are dimensions. Breakpoint categories from mediaAliases are always included.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "default": [
+        "spacing",
+        "space",
+        "size",
+        "sizes",
+        "radius",
+        "radii",
+        "border-radius",
+        "border-width",
+        "width",
+        "height",
+        "gap",
+        "blur",
+        "font-size",
+        "container",
+        "stroke"
+      ]
+    },
     "themes": {
       "description": "Theme token files. Each key except \"default\" is a theme name: \"light\", \"dark\", \"high-contrast\", …",
       "type": ["object", "null"],

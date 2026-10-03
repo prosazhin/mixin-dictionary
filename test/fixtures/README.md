@@ -14,6 +14,7 @@
 | `direct-source` | путь к файлу в `source` (B4) |
 | `camel-case` | camelCase в пути: миксин и блоки тем ссылаются на имена переменных Style Dictionary |
 | `typography-reference` | DTCG-токен typography со ссылкой на другой typography-токен |
+| `figma-export` | выгрузка переменных Figma: цвет объектом, `$extensions` Figma, `number` в размерных категориях → `px`, `font-weight`/`opacity` без единицы |
 
 Вывод старого формата совпадает с версией 1.4.2 байт в байт (кроме `camel-case`: в 1.4.2 там были ссылки на несуществующие переменные).
 

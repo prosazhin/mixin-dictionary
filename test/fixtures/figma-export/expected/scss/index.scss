@@ -1,0 +1,50 @@
+:root {
+  --color-primary: #2563eb;
+  --radius-button: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary: #2563eb;
+    --radius-button: 4px;
+  }
+}
+
+[data-theme='dark'] {
+  --color-primary: #2563eb;
+  --radius-button: 4px;
+}
+
+[data-theme='light'] {
+  --color-primary: #2563eb;
+  --radius-button: 4px;
+}
+
+
+// Do not edit directly, this file was auto-generated.
+
+$color-blue-400: #2563eb;
+$color-primary: var(--color-primary);
+$radius-4: 4px;
+$radius-8: 8px;
+$radius-none: 0;
+$radius-button: var(--radius-button);
+$spacing-2: 8px;
+$screen-md-min: 768px;
+$font-sans: Inter;
+$font-weight-bold: 700;
+$opacity-half: 0.5;
+
+@mixin keyframes($name) {
+  @keyframes #{$name} {
+    @content;
+  }
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin md { @media all and (min-width: $screen-md-min) { @content; } }
