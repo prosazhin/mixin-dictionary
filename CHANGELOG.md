@@ -4,8 +4,7 @@
 
 ### Fixed
 
-- LESS: the `.keyframes()` helper uses `@keyframes @{name}` interpolation instead of a bare `@name` in the at-rule prelude,
-  which Less 4.9+ reports as deprecated. Compiled output is unchanged (`@keyframes`, `@-webkit-keyframes`, `@-moz-keyframes`).
+- LESS: reverted the `@keyframes @{name}` interpolation in the `.keyframes()` helper — it broke Prettier (postcss-less). The helper uses `@keyframes @name` again.
 - Config: omitting `mediaAliases` or `keyframesAliases` no longer prints a red error line — the defaults are applied silently,
   like other optional options. Invalid values are still reported.
 - Dependencies: `brace-expansion` and `fast-uri` overrides bumped (security).

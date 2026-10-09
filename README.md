@@ -246,7 +246,7 @@ $keyframes-show-to-opacity: 1;
 @keyframes-show-to-opacity: 1;
 
 .keyframes(@name, @content) {
-  @keyframes @{name} {
+  @keyframes @name {
     @content();
   }
   /* + @-webkit-keyframes, @-moz-keyframes */
