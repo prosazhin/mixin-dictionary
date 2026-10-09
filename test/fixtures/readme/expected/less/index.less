@@ -29,13 +29,13 @@
 @keyframes-show-to-opacity: 1;
 
 .keyframes(@name, @content) {
-  @keyframes @name {
+  @keyframes @{name} {
     @content();
   }
-  @-webkit-keyframes @name {
+  @-webkit-keyframes @{name} {
     @content();
   }
-  @-moz-keyframes @name {
+  @-moz-keyframes @{name} {
     @content();
   }
 }
