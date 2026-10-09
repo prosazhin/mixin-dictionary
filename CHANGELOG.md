@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.1
 
 ### Fixed
 
@@ -8,6 +8,13 @@
   which Less 4.9+ reports as deprecated. Compiled output is unchanged (`@keyframes`, `@-webkit-keyframes`, `@-moz-keyframes`).
 - Config: omitting `mediaAliases` or `keyframesAliases` no longer prints a red error line — the defaults are applied silently,
   like other optional options. Invalid values are still reported.
+- Dependencies: `brace-expansion` and `fast-uri` overrides bumped (security).
+
+### Docs
+
+- README rewritten: contents, quick start, config table, DTCG example with SCSS and LESS output, themes, Figma export,
+  documentation links, related projects, author. Russian version in `README.ru.md`; documentation links open the site
+  in the README's language (`?lang=en` / `?lang=ru`).
 
 ## 1.7.0
 

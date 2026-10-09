@@ -2,42 +2,105 @@
 
 [![npm version](https://img.shields.io/npm/v/mixin-dictionary.svg)](https://www.npmjs.com/package/mixin-dictionary)
 [![npm downloads](https://img.shields.io/npm/dm/mixin-dictionary.svg)](https://www.npmjs.com/package/mixin-dictionary)
-[![CI](https://github.com/prosazhin/mixin-dictionary/actions/workflows/ci.yml/badge.svg)](https://github.com/prosazhin/mixin-dictionary/actions/workflows/ci.yml)
+[![node](https://img.shields.io/node/v/mixin-dictionary.svg)](https://nodejs.org)
 [![license](https://img.shields.io/npm/l/mixin-dictionary.svg)](./LICENSE)
 
-[Documentation](https://prosazhin.dev/docs/mixin-dictionary)
+**English** · [Русский](https://github.com/prosazhin/mixin-dictionary/blob/main/README.ru.md)
 
-Mixin Dictionary builds CSS variables, LESS and SCSS variables and mixins (typography, media queries, keyframes) from design tokens, with themes (light, dark and more) for CSS, LESS and SCSS. It is based on [Style Dictionary](https://github.com/style-dictionary/style-dictionary).
+Build CSS variables and LESS/SCSS variables and mixins (typography, media queries, keyframes) from design tokens — DTCG
+or the legacy Style Dictionary format — with light, dark and any other themes. Based on
+[Style Dictionary](https://github.com/style-dictionary/style-dictionary).
 
-## Why this package
+📖 [Documentation](https://prosazhin.dev/docs/mixin-dictionary?lang=en) ·
+🧪 [Playground](https://prosazhin.dev/docs/mixin-dictionary/playground?lang=en) ·
+📝 [Changelog](./CHANGELOG.md)
 
-- **JSON config, no code.** One `config.json` — no JS/TS build script to maintain.
-- **DTCG and the legacy format.** Reads [W3C Design Tokens (DTCG 2025.10)](https://www.designtokens.org/tr/2025.10/format/) (`$value`, `$type`, composite `typography` and `shadow`) as exported by Figma, Tokens Studio and Terrazzo, and the legacy Style Dictionary format (`value`) with the same output.
-- **Themes on any DOM level.** Light, dark and any other themes switch with `data-theme` on `<html>` or on any nested container, light/dark also follow `prefers-color-scheme`. LESS/SCSS variables of theme tokens point to CSS variables, so the theme switches at runtime.
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [CLI](#cli)
+- [Programmatic API](#programmatic-api)
+- [Config](#config)
+- [Example](#example)
+- [Themes](#themes)
+- [From Figma](#from-figma)
+- [Legacy format](#legacy-format)
+- [Documentation](#documentation)
+- [Related projects](#related-projects)
+- [Contributing](#contributing)
+- [Author](#author)
+- [License](#license)
+
+## Features
+
+- **JSON config, no code.** One `config.json` — no JS/TS build script to maintain. JSON Schema gives autocompletion
+  and validation in the editor.
+- **CSS, LESS and SCSS.** CSS variables in `:root`, LESS/SCSS variables and mixins: text styles from `typography`
+  tokens, media queries from breakpoints, `@keyframes` (with `-webkit-` and `-moz-` prefixes).
+- **DTCG and the legacy format.** Reads [W3C Design Tokens (DTCG 2025.10)](https://www.designtokens.org/tr/2025.10/format/)
+  (`$value`, `$type`, composite `typography` and `shadow`) as exported by Figma, Tokens Studio and Terrazzo, and the
+  legacy Style Dictionary format (`value`) with the same output.
+- **Themes on any DOM level.** Light, dark and any other themes (`high-contrast`, brands, …) switch with `data-theme` on
+  `<html>` or on any nested container; light/dark also follow `prefers-color-scheme`. LESS/SCSS variables of theme
+  tokens point to CSS variables, so the theme switches at runtime.
+- **Native Figma export.** Variables exported from Figma work without conversion.
+- **CLI, watch mode and API.** `--watch` rebuilds on changes; `build()` and the browser-friendly `generate()` come with
+  TypeScript types.
 
 ## Installation
 
-```bash
-$ npm install mixin-dictionary --save-dev
-# or
-$ yarn add mixin-dictionary --dev
-```
-
-## Usage
+Requires Node.js 22 or newer.
 
 ```bash
-$ mixin-dictionary
+npm install mixin-dictionary --save-dev
 ```
 
-| Flag              | Short Flag | Description                                                        |
-| ----------------- | ---------- | ------------------------------------------------------------------ |
-| --config \[path\] | -c         | Set the config file to use. Must be a .json file                   |
-| --watch           | -w         | Rebuild when token files (`source`, `themes`) or the config change |
-| --version         | -v         | Output the current version                                         |
+## Quick start
 
-Config and token errors are printed as one line with the file and the token path, the exit code is `1`.
+1. Create `config.json`:
 
-### Programmatic API
+   ```json
+   {
+     "$schema": "./node_modules/mixin-dictionary/schema/config.schema.json",
+     "platforms": ["css", "less", "scss"],
+     "source": ["tokens/**/*.json"],
+     "output": "./styles"
+   }
+   ```
+
+2. Build the styles:
+
+   ```bash
+   npx mixin-dictionary
+   ```
+
+3. Import the files you need: `styles/css/index.css`, `styles/less/index.less` or `styles/scss/index.scss`.
+
+   ```scss
+   @use './styles/scss/index.scss' as *;
+
+   .title {
+     @include h64;
+   }
+   ```
+
+## CLI
+
+```bash
+npx mixin-dictionary [options]
+```
+
+| Flag              | Short | Description                                                        |
+| :---------------- | :---- | :----------------------------------------------------------------- |
+| `--config [path]` | `-c`  | Config file to use (`.json`). Default is `./config.json`           |
+| `--watch`         | `-w`  | Rebuild when token files (`source`, `themes`) or the config change |
+| `--version`       | `-v`  | Output the current version                                         |
+
+Config and token errors are printed as one line with the file and the token path; the exit code is `1`.
+
+## Programmatic API
 
 ```js
 import { build } from 'mixin-dictionary';
@@ -60,63 +123,34 @@ const files = await generate({
 files['css/index.css']; // also 'less/index.less', 'scss/index.scss'
 ```
 
-TypeScript types are included.
+More in the [API docs](https://prosazhin.dev/docs/mixin-dictionary/api?lang=en).
 
-## CSS
+## Config
 
-CSS variables are generated in `:root`. Mixins are not supported for CSS. Theme support works via CSS custom properties — see [Theme support](#theme-support).
+| Property           | Type            | Default                            | Description                                                                                                                      |
+| :----------------- | :-------------- | :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `platforms`        | Array           | `["css", "less", "scss"]`          | Platforms to build.                                                                                                              |
+| `source`           | Array           | `["tokens/**/*.json"]`             | Globs or paths of token files, e.g. `["tokens/*.json"]`. JSON, JSON5 and JS are supported.                                       |
+| `output`           | String          | `"./styles"`                       | Output folder, created if missing.                                                                                               |
+| `mediaAliases`     | Array           | `["screen", "breakpoint"]`         | Categories of breakpoint tokens — they become media query mixins.                                                                |
+| `keyframesAliases` | Array           | `["keyframes"]`                    | Categories of keyframes tokens.                                                                                                  |
+| `themes`           | Object          | —                                  | Theme token files (`light`, `dark`, any name) and the `default` theme. See [Themes](#themes).                                    |
+| `numberUnit`       | String \| false | `"px"`                             | Unit for bare numbers in dimension categories: `"px"`, `"rem"` (value / 16) or `false`. See [From Figma](#from-figma).           |
+| `dimensionAliases` | Array           | `["spacing", "radius", "size", …]` | Categories whose bare numbers are dimensions. `mediaAliases` are always included; `line-height`, `font-weight`, `opacity` never. |
+
+Mixins and media queries are built for LESS and SCSS only; CSS gets variables.
+
+Full reference: [Config](https://prosazhin.dev/docs/mixin-dictionary/config?lang=en).
 
 ## Example
 
-As an example of usage, you can look at the [pbstyles](https://github.com/prosazhin/pbstyles) style library.
+Tokens in [DTCG](https://prosazhin.dev/docs/mixin-dictionary/dtcg?lang=en) (`$type` is inherited from the group).
+Mixins come from the token structure, no `mixin` field needed:
 
-### config.json
-
-```json
-{
-  "$schema": "./node_modules/mixin-dictionary/schema/config.schema.json",
-  "platforms": ["css", "less", "scss"],
-  "source": ["tokens/**/*.json"],
-  "output": "./styles",
-  "mediaAliases": ["screen", "breakpoint"],
-  "keyframesAliases": ["keyframes"]
-}
-```
-
-`$schema` enables autocompletion and validation of the config in VS Code and other editors.
-
-| Property         | Type            | Default                            | Description                                                                                                                                                                     |
-| :--------------- | :-------------- | :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| platforms        | Array           | `["css", "less", "scss"]`          | Sets of platform files to be built.                                                                                                                                             |
-| source           | Array           | `["tokens/**/*.json"]`             | Globs or file paths of design token files, e.g. `["tokens/*.json"]` or `["tokens/base.json"]`. JSON, JSON5 and JS are supported.                                                |
-| output           | String          | `"./styles"`                       | Base path to build the files. The folder is created if it does not exist.                                                                                                       |
-| mediaAliases     | Array           | `["screen", "breakpoint"]`         | Categories of breakpoint tokens.                                                                                                                                                |
-| keyframesAliases | Array           | `["keyframes"]`                    | Categories of keyframes tokens.                                                                                                                                                 |
-| numberUnit       | String \| false | `"px"`                             | Unit for bare numbers (DTCG `number`, e.g. Figma FLOAT variables) in dimension categories. `"rem"` divides by 16, `false` outputs numbers as is. Zero stays `0`.                |
-| dimensionAliases | Array           | `["spacing", "radius", "size", …]` | Categories (first path segment) whose bare numbers are dimensions. `mediaAliases` categories are always included. `line-height`, `font-weight`, `opacity` are never dimensions. |
-| themes           | Object          | `null`                             | Optional. Theme token files (`light`, `dark`, any other name) and the `default` theme. See [Theme support](#theme-support).                                                     |
-
-## DTCG
-
-Token files in the [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/format/) format (`$value`, `$type`) are detected automatically. One build uses one format: mixing `value` and `$value` in the same set of files is an error.
-
-| DTCG value                                                         | Output                                                                                 |
-| :----------------------------------------------------------------- | :------------------------------------------------------------------------------------- |
-| `dimension` `{ "value": 16, "unit": "px" }`                        | `16px`                                                                                 |
-| `color` `{ "colorSpace": "srgb", "components": […], "hex": "#…" }` | `#…`, with `alpha` — `rgba(…)`, other color spaces — `oklch(…)`, `color(display-p3 …)` |
-| `fontFamily` `["Inter", "sans-serif"]`                             | `'Inter', sans-serif`                                                                  |
-| `shadow` (object or array of layers)                               | `0px 1px 2px 0px #000000, inset …`                                                     |
-| `duration`, `cubicBezier`, `border`, `transition`                  | `150ms`, `cubic-bezier(…)`, `1px solid #…`, …                                          |
-| string values                                                      | as is                                                                                  |
-
-`$type` is inherited from the parent group. A reference `{group.token}` must point to an existing token, otherwise the build stops with the token path and the file name.
-
-Mixins are built from the token structure, no `mixin` field needed:
-
-- a composite `typography` token → a mixin named after the token (`font.h64` → `h64`), variables `<path>-font-size`, `<path>-line-height`, …;
+- a composite `typography` token → a mixin named after the token (`font.h64` → `h64`);
 - tokens in `mediaAliases` categories: `screen.lg.{min,max}` → media query mixin `lg`;
 - tokens in `keyframesAliases` categories: `keyframes.<name>.<frame>.<property>` → keyframes `<name>`;
-- explicit name: `"$extensions": { "dev.prosazhin.mixin": "<name>" }`. The legacy `mixin` field still works and has the highest priority.
+- an explicit name: `"$extensions": { "dev.prosazhin.mixin": "<name>" }`.
 
 ```json
 {
@@ -150,7 +184,10 @@ Mixins are built from the token structure, no `mixin` field needed:
 }
 ```
 
-#### SCSS
+<table>
+<tr><th>SCSS — <code>scss/index.scss</code></th><th>LESS — <code>less/index.less</code></th></tr>
+<tr>
+<td>
 
 ```scss
 $font-size-64: 64px;
@@ -168,12 +205,7 @@ $keyframes-show-to-opacity: 1;
   @keyframes #{$name} {
     @content;
   }
-  @-webkit-keyframes #{$name} {
-    @content;
-  }
-  @-moz-keyframes #{$name} {
-    @content;
-  }
+  /* + @-webkit-keyframes, @-moz-keyframes */
 }
 
 @mixin h64 {
@@ -181,11 +213,13 @@ $keyframes-show-to-opacity: 1;
   line-height: $font-h64-line-height;
   font-weight: $font-h64-font-weight;
 }
+
 @mixin lg {
   @media all and (min-width: $screen-lg-min) and (max-width: $screen-lg-max) {
     @content;
   }
 }
+
 @include keyframes(show) {
   from {
     opacity: $keyframes-show-from-opacity;
@@ -196,7 +230,8 @@ $keyframes-show-to-opacity: 1;
 }
 ```
 
-#### LESS
+</td>
+<td>
 
 ```less
 @font-size-64: 64px;
@@ -211,15 +246,10 @@ $keyframes-show-to-opacity: 1;
 @keyframes-show-to-opacity: 1;
 
 .keyframes(@name, @content) {
-  @keyframes @name {
+  @keyframes @{name} {
     @content();
   }
-  @-webkit-keyframes @name {
-    @content();
-  }
-  @-moz-keyframes @name {
-    @content();
-  }
+  /* + @-webkit-keyframes, @-moz-keyframes */
 }
 
 .h64() {
@@ -227,311 +257,161 @@ $keyframes-show-to-opacity: 1;
   line-height: @font-h64-line-height;
   font-weight: @font-h64-font-weight;
 }
+
 .lg(@rules) {
   @media all and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) {
     @rules();
   }
 }
-.keyframes(show, { from { opacity: @keyframes-show-from-opacity; } to { opacity: @keyframes-show-to-opacity; } });
+
+.keyframes(show, {
+  from { opacity: @keyframes-show-from-opacity; }
+  to { opacity: @keyframes-show-to-opacity; }
+});
 ```
 
-## Theme support
+</td>
+</tr>
+</table>
 
-Add an optional `themes` object to your config to enable theme output. If omitted, behavior is identical to previous versions — full backward compatibility.
+`css/index.css` gets the same tokens as CSS variables in `:root` (`--font-h64-font-size: 64px;` …).
 
-### config.json with themes
+DTCG values are converted to CSS: `dimension` objects → `16px`, colors → `#…`, `rgba(…)`, `oklch(…)`, `fontFamily`
+arrays → `'Inter', sans-serif`, `shadow` → `0px 1px 2px 0px #000000, inset …`. A reference `{group.token}` must point
+to an existing token, otherwise the build stops with the token path and the file name.
+
+A real project: the [pbstyles](https://github.com/prosazhin/pbstyles) style library.
+
+## Themes
 
 ```json
 {
   "platforms": ["css", "less", "scss"],
   "source": ["tokens/*.json"],
   "themes": {
-    "light": ["tokens/themes/light.json"],
-    "dark": ["tokens/themes/dark.json"]
-  },
-  "output": "./styles",
-  "mediaAliases": ["screen", "breakpoint"],
-  "keyframesAliases": ["keyframes"]
-}
-```
-
-| Property       | Type       | Description                                                                                                               |
-| :------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------ |
-| themes.<name>  | `string[]` | Token files of a theme: `light`, `dark` or any other name (`high-contrast`, `brand`, …).                                  |
-| themes.default | `string`   | Theme whose values go to `:root`. Default is `light`. Without `light` files, `light` means the base tokens from `source`. |
-
-> **Note:** when using `themes`, make sure `source` does not include the theme files themselves — use a specific glob like `tokens/*.json` instead of `tokens/**/*.json`. Theme files are passed separately via `themes` to avoid token collisions.
-
-### How it works
-
-Style Dictionary resolves the tokens in memory (no cache files) once for the default theme and once for every other theme:
-
-1. **Default theme** — `source` + `themes.<default>` → all platform files and mixins
-2. **Other themes** — `source` + `themes.<name>` → only the override blocks of the semantic tokens
-
-Semantic tokens are the tokens defined in the themes other than `default`. If a semantic token is missing in one of the themes, the build prints a warning with the token paths.
-
-### Theme switching
-
-- **No attribute** — `:root` gets the default theme; `light`/`dark` follow the OS preference via `@media (prefers-color-scheme)`
-- **`<html data-theme="dark">`** — forces dark regardless of the OS preference
-- **`<html data-theme="light">`** — forces light regardless of the OS preference
-- **`<div data-theme="light">`** (or any other theme) — switches the theme for a single container inside a page of another theme
-
-### CSS
-
-All tokens in `:root`, semantic overrides via `@media`, `[data-theme='dark']` and `[data-theme='light']`:
-
-```css
-:root {
-  --color-black: #000000;
-  --color-basic-0: #ffffff;
-  /* ... all tokens ... */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-basic-0: #0f172a;
-    /* ... semantic overrides only ... */
-  }
-}
-
-[data-theme='dark'] {
-  --color-basic-0: #0f172a;
-  /* ... semantic overrides only ... */
-}
-
-[data-theme='light'] {
-  --color-basic-0: #ffffff;
-  /* ... semantic overrides only ... */
-}
-```
-
-### More than two themes
-
-```json
-{
-  "themes": {
     "default": "light",
     "light": ["tokens/themes/light.json"],
     "dark": ["tokens/themes/dark.json"],
     "high-contrast": ["tokens/themes/high-contrast.json"]
-  }
+  },
+  "output": "./styles"
 }
 ```
 
-Each theme gets its own `[data-theme='<name>']` block. The system dark scheme applies only while no other theme is set on `:root`:
+> [!NOTE]
+> `source` must not include the theme files — use `tokens/*.json` instead of `tokens/**/*.json`.
+
+Tokens defined in the themes other than `default` become semantic. The `default` theme goes to `:root`, every other
+theme gets an override block with the semantic tokens only:
 
 ```css
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']):not([data-theme='high-contrast']) { ... }
-}
-
-[data-theme='dark'] { ... }
-
-[data-theme='high-contrast'] { ... }
-
-[data-theme='light'] { ... }
-```
-
-### LESS
-
-```less
 :root {
-  --color-basic-0: #ffffff;
-  /* ... semantic tokens only ... */
+  --color-black: #000000;
+  --color-background: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-basic-0: #0f172a;
+  :root:not([data-theme='light']):not([data-theme='high-contrast']) {
+    --color-background: #0f172a;
   }
 }
 
 [data-theme='dark'] {
-  --color-basic-0: #0f172a;
+  --color-background: #0f172a;
 }
 
-[data-theme='light'] {
-  --color-basic-0: #ffffff;
-}
-
-/* Semantic tokens reference CSS custom properties for runtime switching */
-@color-basic-0: var(--color-basic-0);
-
-/* Non-semantic tokens keep actual values */
-@color-black: #000000;
+/* [data-theme='high-contrast'] { … } [data-theme='light'] { … } */
 ```
 
-### SCSS
+In LESS/SCSS semantic tokens reference CSS variables, so the theme switches at runtime; the other tokens keep their
+values (they are safe to use in `@media`):
 
 ```scss
-:root {
-  --color-basic-0: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-basic-0: #0f172a;
-  }
-}
-
-[data-theme='dark'] {
-  --color-basic-0: #0f172a;
-}
-
-[data-theme='light'] {
-  --color-basic-0: #ffffff;
-}
-
-$color-basic-0: var(--color-basic-0);
 $color-black: #000000;
+$color-background: var(--color-background);
 ```
 
-## Legacy format: the `mixin` field
+- no attribute — `:root` gets the `default` theme, light/dark follow the system `prefers-color-scheme`;
+- `data-theme="<name>"` forces the theme on the element and its subtree — on `<html>` or on any nested container.
 
-In the legacy format a mixin is a set of tokens with the same `mixin` field.
+If a semantic token is missing in one of the themes, the build prints a warning with the token paths. Without `themes`
+the output is the same as in previous versions.
 
-### Example of a mixin
+Details: [Themes](https://prosazhin.dev/docs/mixin-dictionary/themes?lang=en).
+
+## From Figma
+
+**Variables → right click on a collection → Export modes** gives one `*.tokens.json` file per mode. Put the primitives
+into `source` and the modes into `themes`:
+
+```json
+{
+  "platforms": ["css", "less", "scss"],
+  "source": ["tokens/Primitives.tokens.json"],
+  "themes": {
+    "light": ["tokens/Light.tokens.json"],
+    "dark": ["tokens/Dark.tokens.json"]
+  },
+  "output": "./styles"
+}
+```
+
+Figma exports numbers without units, so bare numbers in dimension categories (`spacing`, `radius`, `size`, breakpoints,
+…) get `px` by default (`numberUnit`). Details: [From Figma](https://prosazhin.dev/docs/mixin-dictionary/figma?lang=en).
+
+## Legacy format
+
+The Style Dictionary format with `value` works as before. A mixin is a set of tokens with the same `mixin` field:
 
 ```json
 {
   "font": {
     "h64": {
-      "font-size": {
-        "value": "64px",
-        "mixin": "h64"
-      },
-      "line-height": {
-        "value": "1.25",
-        "mixin": "h64"
-      },
-      "font-weight": {
-        "value": "700",
-        "mixin": "h64"
-      }
+      "font-size": { "value": "64px", "mixin": "h64" },
+      "line-height": { "value": "1.25", "mixin": "h64" },
+      "font-weight": { "value": "700", "mixin": "h64" }
     }
   }
 }
 ```
 
-#### SCSS
+The output is the same `@mixin h64` / `.h64()` as in the [example](#example). Breakpoints and keyframes use the
+`mixin` field the same way. One build uses one format: mixing `value` and `$value` is an error.
 
-```scss
-$font-h64-font-size: 64px;
-$font-h64-line-height: 1.25;
-$font-h64-font-weight: 700;
+Details: [Legacy format](https://prosazhin.dev/docs/mixin-dictionary/legacy?lang=en).
 
-@mixin h64 {
-  font-size: $font-h64-font-size;
-  line-height: $font-h64-line-height;
-  font-weight: $font-h64-font-weight;
-}
-```
+## Documentation
 
-#### LESS
+| Page                                                                         | What's inside                                                     |
+| :--------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| [Getting started](https://prosazhin.dev/docs/mixin-dictionary?lang=en)       | Overview and quick start                                          |
+| [Config and CLI](https://prosazhin.dev/docs/mixin-dictionary/config?lang=en) | All config options, platforms and CLI flags                       |
+| [DTCG](https://prosazhin.dev/docs/mixin-dictionary/dtcg?lang=en)             | `$type` values, typography, breakpoints, keyframes, `$extensions` |
+| [Legacy format](https://prosazhin.dev/docs/mixin-dictionary/legacy?lang=en)  | Style Dictionary `value` format and `mixin`                       |
+| [Themes](https://prosazhin.dev/docs/mixin-dictionary/themes?lang=en)         | Light, dark and custom themes, generated CSS, LESS and SCSS       |
+| [From Figma](https://prosazhin.dev/docs/mixin-dictionary/figma?lang=en)      | Native Figma Variables export, `numberUnit`                       |
+| [API](https://prosazhin.dev/docs/mixin-dictionary/api?lang=en)               | `build()`, `generate()`, TypeScript types, watch mode             |
+| [Playground](https://prosazhin.dev/docs/mixin-dictionary/playground?lang=en) | Try it in the browser                                             |
 
-```less
-@font-h64-font-size: 64px;
-@font-h64-line-height: 1.25;
-@font-h64-font-weight: 700;
+## Related projects
 
-.h64() {
-  font-size: @font-h64-font-size;
-  line-height: @font-h64-line-height;
-  font-weight: @font-h64-font-weight;
-}
-```
+- [tailwind-dictionary](https://github.com/prosazhin/tailwind-dictionary) — the same tokens as a Tailwind CSS theme
+  (v3 and v4).
+- [pbstyles](https://github.com/prosazhin/pbstyles) — a style library built with both packages.
+- [pbcomponents](https://github.com/prosazhin/pbcomponents) — React components on top of pbstyles.
 
-### Example of a keyframes mixin
+## Contributing
 
-```json
-{
-  "keyframes": {
-    "fade": {
-      "from": {
-        "opacity": { "value": 0, "mixin": "fade" }
-      },
-      "to": {
-        "opacity": { "value": 1, "mixin": "fade" }
-      }
-    }
-  }
-}
-```
+Bug reports and ideas are welcome in [issues](https://github.com/prosazhin/mixin-dictionary/issues). Before opening a
+pull request, read [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-#### SCSS
+## Author
 
-```scss
-$keyframes-fade-from-opacity: 0;
-$keyframes-fade-to-opacity: 1;
+**Evgenii Sazhin**, frontend developer & designer — [prosazhin.dev](https://prosazhin.dev?lang=en) · [GitHub](https://github.com/prosazhin) ·
+[Telegram](https://t.me/prosazhin) · [LinkedIn](https://www.linkedin.com/in/prosazhin)
 
-@include keyframes(fade) {
-  from {
-    opacity: $keyframes-fade-from-opacity;
-  }
-  to {
-    opacity: $keyframes-fade-to-opacity;
-  }
-}
-```
+If the package is useful to you, give it a ⭐ on [GitHub](https://github.com/prosazhin/mixin-dictionary).
 
-#### LESS
+## License
 
-```less
-@keyframes-fade-from-opacity: 0;
-@keyframes-fade-to-opacity: 1;
-
-.keyframes(fade, { from { opacity: @keyframes-fade-from-opacity; } to { opacity: @keyframes-fade-to-opacity; } });
-```
-
-The `keyframes` helper mixin (with `@-webkit-keyframes` and `@-moz-keyframes`) is added to the file once.
-
-### Example of a media query mixin
-
-```json
-{
-  "screen": {
-    "lg": {
-      "max": {
-        "value": "1440px",
-        "mixin": "lg"
-      },
-      "min": {
-        "value": "921px",
-        "mixin": "lg"
-      }
-    }
-  }
-}
-```
-
-#### SCSS
-
-```scss
-$screen-lg-max: 1440px;
-$screen-lg-min: 921px;
-
-@mixin lg {
-  @media all and (max-width: $screen-lg-max) and (min-width: $screen-lg-min) {
-    @content;
-  }
-}
-```
-
-#### LESS
-
-```less
-@screen-lg-max: 1440px;
-@screen-lg-min: 921px;
-
-.lg(@rules) {
-  @media all and (max-width: @screen-lg-max) and (min-width: @screen-lg-min) {
-    @rules();
-  }
-}
-```
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md).
+[MIT](./LICENSE) © Evgenii Sazhin
